@@ -1,6 +1,7 @@
 #ifndef MANDELBROT_COMPLEX_H
 #define MANDELBROT_COMPLEX_H
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 

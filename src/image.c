@@ -1,7 +1,4 @@
-#include <stdlib.h>
-
 #include "include/image.h"
-
 
 #define PIXEL_SIZE 3 // RGB -> 3B/px
 #define BIT_DEPTH 8

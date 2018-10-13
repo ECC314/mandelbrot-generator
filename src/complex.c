@@ -1,4 +1,3 @@
-#include <math.h>
 #include "include/complex.h"
 
 complex_t complex_add(complex_t z1, complex_t z2)
@@ -37,8 +36,8 @@ int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterat
 	return 0;
 }
 
-complex_plane_t *create_complex_plane(int width, int height, double real_min, double real_max, double imaginary_max,
-									  double imaginary_min)
+complex_plane_t *create_complex_plane(int height, int width, double real_min, double real_max, double imaginary_min,
+									  double imaginary_max)
 {
 	complex_plane_t *plane = malloc(sizeof(complex_plane_t));
 
