@@ -69,7 +69,7 @@ config_t *parse_args(int argc, char **argv)
 		config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 	}
 
-	if (config->plane != NULL && config->file_name != NULL && config->limit > 0)
+	if (config->plane != NULL && config->file_name != NULL && config->limit > 0 && config->iteration_depth > 0)
 	{
 		return config;
 	}
