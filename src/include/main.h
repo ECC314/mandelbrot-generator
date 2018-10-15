@@ -6,6 +6,7 @@
 
 #include "complex.h"
 #include "configuration.h"
+#include "debug.h"
 #include "image.h"
 #include "mandelbrot.h"
 

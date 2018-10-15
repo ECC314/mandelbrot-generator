@@ -3,6 +3,7 @@
 
 #include "complex.h"
 #include "configuration.h"
+#include "debug.h"
 #include "image.h"
 
 // Obtain Mandelbrot iteration z_(n+1) from z_n and c.

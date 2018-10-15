@@ -30,7 +30,7 @@ data_array_t *get_mandelbrot_limit_data(config_t *config)
 	for (int i = 0; i < height; i++)
 	{
 		if (i % 100 == 0)
-			printf("Calculating line %d...\n", i);
+			DEBUG_PRINT("Calculating line %d...\n", i);
 		for (int r = 0; r < width; r++)
 		{
 			size_t index = i * width + r;

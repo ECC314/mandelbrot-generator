@@ -62,9 +62,9 @@ config_t *parse_args(int argc, char **argv)
 
 	if (plane_specs && height > 0 && width > 0)
 	{
-		printf("Complex plane specifications:\n");
-		printf("\tReal      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
-		printf("\tImaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
+		DEBUG_PRINT("Complex plane specifications:\n");
+		DEBUG_PRINT("\tReal      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
+		DEBUG_PRINT("\tImaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
 
 		config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 	}
