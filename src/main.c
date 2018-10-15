@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "include/complex.h"
-#include "include/image.h"
-#include "include/configuration.h"
+#include "include/main.h"
 
 int main(int argc, char** argv)
 {
@@ -15,51 +10,23 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	const int height = config->plane->pixel_height;
-	const int width = config->plane->pixel_width;
+	const size_t height = config->plane->pixel_height;
+	const size_t width = config->plane->pixel_width;
 
-	printf("%d/%d\n", height, width);
-
-	int *mandelbrot_data = calloc((size_t) width * height, sizeof(int));
-
-	image_t image = {NULL, width, height};
-	image.data = calloc((size_t) width * height, sizeof(pixel_t));
-
-	int *iteration_data = calloc((size_t) width * height, sizeof(int));
-	// Highest iteration count, will be used to scale colors.
-	int maximum = 0;
-
-	for (int i = 0; i < height; i++)
+	printf("Generating iteration data...\n");
+	data_array_t *data = get_mandelbrot_limit_data(config);
+	printf("Generating image data...\n");
+	image_t *image = data_to_image(data, width, height);
+	printf("Writing PNG...\n");
+	if (write_image_to_file(image, config->file_name))
 	{
-		if (i % 100 == 0)
-			printf("Calculating line %d...\n", i);
-		for (int r = 0; r < width; r++)
-		{
-			int index = i * width + r;
-			complex_t c = coordinate_to_complex(config->plane, r, i);
-			int iteration = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
-
-			iteration_data[index] = iteration;
-			if (iteration > maximum)
-				maximum = iteration;
-		}
-	}
-
-	for (int i = 0; i < width * height; i++)
-	{
-		image.data[i] = int_to_grayscale(iteration_data[i], maximum);
-	}
-
-	if (write_image_to_file(&image, config->file_name))
-	{
-		fprintf(stderr, "An error occurred while attempting to write the PNG data. Aborting.\n");
+		fprintf(stderr, "An error occurred while attempting to write the PNG values. Aborting.\n");
 		free_config(config);
 		return 1;
 	}
 
-	free(iteration_data);
-	free(image.data);
-	free(mandelbrot_data);
+	free_image(image);
+	free_data(data);
 	free_config(config);
 	return 0;
 

@@ -18,31 +18,13 @@ complex_t complex_square(complex_t z)
 	return (complex_t) {z.real * z.real - z.imaginary * z.imaginary, 2 * z.real * z.imaginary};
 }
 
-complex_t next_mandelbrot_iteration(complex_t z, complex_t c)
-{
-	// z_(n+1) := (z_n)^2 + c
-	return complex_add(complex_square(z), c);
-}
-
-int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterations)
-{
-	complex_t z = {0, 0}; // z_0 := 0
-	for (int n = 1; n <= max_iterations; n++)
-	{
-		z = next_mandelbrot_iteration(z, c);
-		if (complex_absolute(z) > limit)
-			return n;
-	}
-	return 0;
-}
-
 complex_plane_t *create_complex_plane(int height, int width, double real_min, double real_max, double imaginary_min,
 									  double imaginary_max)
 {
 	complex_plane_t *plane = malloc(sizeof(complex_plane_t));
 
-	plane->pixel_height = height;
-	plane->pixel_width = width;
+	plane->pixel_height = (size_t) height;
+	plane->pixel_width  = (size_t) width;
 	plane->real_min = real_min;
 	plane->real_max = real_max;
 	plane->imaginary_max = imaginary_max;

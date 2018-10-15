@@ -8,8 +8,8 @@
 // A complex plane, divided into `pixel_width` by `pixel_height` units.
 typedef struct
 {
-	int pixel_width;
-	int pixel_height;
+	size_t pixel_width;
+	size_t pixel_height;
 	double real_min;
 	double real_max;
 	double imaginary_min;
@@ -23,12 +23,16 @@ typedef struct
 	double imaginary;
 } complex_t;
 
-// Obtain Mandelbrot iteration z_(n+1) from z_n and c.
-complex_t next_mandelbrot_iteration(complex_t z, complex_t c);
+// Returns the sum of two complex numbers.
+complex_t complex_add(complex_t z1, complex_t z2);
 
-// Returns the index n of the first Mandelbrot iteration of c where abs(z_n) is greater than `limit`.
-// Returns 0 if the series does not exceed `limit` within `max_iterations` steps.
-int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterations);
+// Returns the absolute value of a complex number.
+// abs(z) = sqrt(Re(z)^2 + Im(z)^2)
+double complex_absolute(complex_t z);
+
+// Returns the square of a complex number.
+// z^2 = (a + ib)^2 = a^2 + 2iab - b^2
+complex_t complex_square(complex_t z);
 
 // Allocate a new complex plane. Must be freed with free()!
 complex_plane_t *create_complex_plane(int height, int width, double real_min, double real_max, double imaginary_min,

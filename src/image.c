@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "include/image.h"
 
 #define PIXEL_SIZE 3 // RGB -> 3B/px
@@ -81,6 +82,23 @@ int write_image_to_file(image_t *image, char *file_name)
 	return 0;
 }
 
+int get_maximum(data_array_t *data)
+{
+	int max = 0;
+
+	for (int i = 0; i < data->length; i++)
+	{
+		if (data->values[i] > max)
+		{
+			max = data->values[i];
+		}
+	}
+
+	return max;
+}
+
+// Converts a `value` to a grayscale pixel in relation to the `max` value.
+// A lower `value` yields a lighter color; except for 0, which yields black (as 0 serves as a replacement for 'infinite').
 pixel_t int_to_grayscale(int value, int max)
 {
 	uint8_t color;
@@ -91,9 +109,45 @@ pixel_t int_to_grayscale(int value, int max)
 	}
 	else
 	{
-		float scale = (max - value) / (float) max;
-		color = (uint8_t) (scale * 255);
+		double scale = (max - value) / (double) max;
+		color = (uint8_t) ceil(scale * 255);
 	}
 
 	return (pixel_t) {color, color, color};
+}
+
+image_t *data_to_image(data_array_t *data, size_t width, size_t height)
+{
+	assert(data->length == width * height);
+
+	image_t *image = calloc(1, sizeof(image_t));
+	image->data = calloc((size_t) data->length, sizeof(pixel_t));
+	image->width = width;
+	image->height = height;
+
+	int max = get_maximum(data);
+	for (int i = 0; i < data->length; i++)
+	{
+		image->data[i] = int_to_grayscale(data->values[i], max);
+	}
+
+	return image;
+}
+
+void free_image(image_t *image)
+{
+	if (image != NULL)
+	{
+		free(image->data);
+		free(image);
+	}
+}
+
+void free_data(data_array_t *data)
+{
+	if (data != NULL)
+	{
+		free(data->values);
+		free(data);
+	}
 }
