@@ -13,7 +13,8 @@
 
 typedef struct
 {
-	char *file_name;
+	char *output_file;
+	char* palette_file;
 	int iteration_depth;
 	int limit;
 	complex_plane_t *plane;

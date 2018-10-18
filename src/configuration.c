@@ -2,20 +2,20 @@
 
 void print_usage(char **argv)
 {
-	fprintf(stderr, "Usage: %s -d depth -f output_file -i image_size -l limit -p plane_specs\n", argv[0]);
-	fprintf(stderr, "\tdepth        Number of iterations per pixel.\n");
-	fprintf(stderr, "\toutput_file  Path of the resulting PNG file.\n");
-	fprintf(stderr, "\timage_size   Size of the resulting PNG.\n");
-	fprintf(stderr, "\t             Format:  HEIGHTxWIDTH\n");
-	fprintf(stderr, "\t             Example: 100x200\n");
-	fprintf(stderr, "\t             -> 100 pixels high, 200 pixels wide.\n");
-	fprintf(stderr, "\tlimit        Limit that must be exceeded by abs(z_n(c)).\n");
-	fprintf(stderr, "\tplane_specs  Specifications of the complex plane.\n");
-	fprintf(stderr, "\t             Format:  min_r/max_r/min_i/max_i\n");
-	fprintf(stderr, "\t             Example: -3.5/2.5/-3/3\n");
-	fprintf(stderr, "\t             -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n");
-
-
+	fprintf(stderr, "Usage: %s -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file]\n", argv[0]);
+	fprintf(stderr, "\tdepth         Number of iterations per pixel.\n");
+	fprintf(stderr, "\toutput_file   Path of the resulting PNG file.\n");
+	fprintf(stderr, "\timage_size    Size of the resulting PNG.\n");
+	fprintf(stderr, "\t              Format:  HEIGHTxWIDTH\n");
+	fprintf(stderr, "\t              Example: 100x200\n");
+	fprintf(stderr, "\t              -> 100 pixels high, 200 pixels wide.\n");
+	fprintf(stderr, "\tlimit         Limit that must be exceeded by abs(z_n(c)).\n");
+	fprintf(stderr, "\tplane_specs   Specifications of the complex plane.\n");
+	fprintf(stderr, "\t              Format:  min_r/max_r/min_i/max_i\n");
+	fprintf(stderr, "\t              Example: -3.5/2.5/-3/3\n");
+	fprintf(stderr, "\t              -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n");
+	fprintf(stderr, "\tpalette_file  Path of the color palette file.\n");
+	fprintf(stderr, "\t              Defaults to linear grayscale if no palette is provided.\n");
 }
 
 config_t *parse_args(int argc, char **argv)
@@ -32,7 +32,7 @@ config_t *parse_args(int argc, char **argv)
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt(argc, argv, "d:f:i:l:p:")) != -1)
+	while ((opt = getopt(argc, argv, "d:f:i:l:p:P:")) != -1)
 	{
 		switch (opt)
 		{
@@ -40,8 +40,8 @@ config_t *parse_args(int argc, char **argv)
 				config->iteration_depth = atoi(optarg);
 				break;
 			case 'f':
-				config->file_name = calloc(strlen(optarg) + 1, sizeof(char));
-				strncpy(config->file_name, optarg, strlen(optarg));
+				config->output_file = calloc(strlen(optarg) + 1, sizeof(char));
+				strncpy(config->output_file, optarg, strlen(optarg));
 				break;
 			case 'i':
 				sscanf(optarg, "%dx%d", &height, &width);
@@ -52,6 +52,10 @@ config_t *parse_args(int argc, char **argv)
 			case 'p':
 				sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i);
 				plane_specs = true;
+				break;
+			case 'P':
+				config->palette_file = calloc(strlen(optarg) + 1, sizeof(char));
+				strncpy(config->palette_file, optarg, strlen(optarg));
 				break;
 			default:
 				print_usage(argv);
@@ -69,7 +73,7 @@ config_t *parse_args(int argc, char **argv)
 		config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 	}
 
-	if (config->plane != NULL && config->file_name != NULL && config->limit > 0 && config->iteration_depth > 0)
+	if (config->plane != NULL && config->output_file != NULL && config->limit > 0 && config->iteration_depth > 0)
 	{
 		return config;
 	}
@@ -83,10 +87,12 @@ config_t *parse_args(int argc, char **argv)
 
 void free_config(config_t *config)
 {
-	if (config->file_name != NULL)
-		free(config->file_name);
-	if (config->plane != NULL)
+	if (config != NULL)
+	{
+		free(config->output_file);
+		free(config->palette_file);
 		free(config->plane);
+	}
 
 	free(config);
 }

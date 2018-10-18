@@ -9,5 +9,6 @@
 #include "debug.h"
 #include "image.h"
 #include "mandelbrot.h"
+#include "palette.h"
 
 #endif //MANDELBROT_MAIN_H
