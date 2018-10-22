@@ -9,9 +9,10 @@ void free_palette(palette_t *palette)
 	}
 }
 
-palette_t *read_color_palette(char *filename)
+palette_t *read_color_palette(char *filename, int type)
 {
 	palette_t *palette = calloc(1, sizeof(palette_t));
+	palette->type = type;
 
 	FILE *file;
 	file = fopen(filename, "r");
@@ -66,7 +67,7 @@ pixel_t get_linear_grayscale(int value, int max)
 	return (pixel_t) {color, color, color};
 }
 
-pixel_t get_custom_rgb(int value, int max, palette_t *palette)
+pixel_t get_custom_rgb(int value, int max, int min, palette_t *palette)
 {
 	int max_index = palette->size - 1;
 
@@ -76,7 +77,12 @@ pixel_t get_custom_rgb(int value, int max, palette_t *palette)
 	}
 	else
 	{
-		double scale = value / (double) max;
+		double scale;
+		if (palette->type == PALETTE_ABSOLUTE)
+			scale = value / (double) max;
+		else
+			scale = (value - min) / (double) (max - min);
+
 		int index = (int) ceil(scale * max_index);
 		return palette->colors[index];
 	}
@@ -92,6 +98,7 @@ image_t *data_to_image(data_array_t *data, size_t width, size_t height, palette_
 	image->height = height;
 
 	int max = get_maximum(data);
+	int min = get_minimum(data);
 	for (int i = 0; i < data->length; i++)
 	{
 		if (palette == NULL)
@@ -100,7 +107,7 @@ image_t *data_to_image(data_array_t *data, size_t width, size_t height, palette_
 		}
 		else
 		{
-			image->data[i] = get_custom_rgb(data->values[i], max, palette);
+			image->data[i] = get_custom_rgb(data->values[i], max, min, palette);
 		}
 	}
 

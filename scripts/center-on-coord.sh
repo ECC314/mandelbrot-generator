@@ -34,9 +34,9 @@ i1=$(echo "${IMAG}-$BORDER" | bc)
 i2=$(echo "${IMAG}+$BORDER" | bc)
 
 if [[ "$PALETTE" != "" ]]; then
-	../cmake-build-debug/mandelbrot-generator -f "$FILENAME" -i "${SIZE}x${SIZE}" -l "$LIMIT" \
+	../cmake-build-debug/mandelbrot-generator -R -f "$FILENAME" -i "${SIZE}x${SIZE}" -l "$LIMIT" \
 		-p "${r1}/${r2}/${i1}/${i2}" -d "$DEPTH" -P "$PALETTE"
 else
-	../cmake-build-debug/mandelbrot-generator -f "$FILENAME" -i "${SIZE}x${SIZE}" -l "$LIMIT" \
+	../cmake-build-debug/mandelbrot-generator -R -f "$FILENAME" -i "${SIZE}x${SIZE}" -l "$LIMIT" \
 		-p "${r1}/${r2}/${i1}/${i2}" -d "$DEPTH"
 fi

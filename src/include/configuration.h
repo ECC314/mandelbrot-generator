@@ -15,6 +15,7 @@ typedef struct
 {
 	char *output_file;
 	char* palette_file;
+	int palette_type;
 	int iteration_depth;
 	int limit;
 	complex_plane_t *plane;

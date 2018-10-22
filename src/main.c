@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	if (config->palette_file != NULL)
 	{
 		DEBUG_PRINT("Defining color palette...\n");
-		palette = read_color_palette(config->palette_file);
+		palette = read_color_palette(config->palette_file, config->palette_type);
 		if (palette == NULL)
 		{
 			fprintf(stderr, "Failed to read color palette from %s. Aborting.\n", config->palette_file);
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 	free_palette(palette);
 	free_data(data);
 
-	DEBUG_PRINT("Writing PNG...\n");
+	DEBUG_PRINT("Writing PNG to %s...\n", config->output_file);
 	if (write_image_to_file(image, config->output_file))
 	{
 		fprintf(stderr, "An error occurred while attempting to write the PNG values. Aborting.\n");
