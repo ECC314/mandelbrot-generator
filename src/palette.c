@@ -71,7 +71,7 @@ pixel_t get_custom_rgb(int value, int max, int min, palette_t *palette)
 {
 	int max_index = palette->size - 1;
 
-	if (value == 0)
+	if (value == 0 || min == max)
 	{
 		return palette->colors[max_index];
 	}
