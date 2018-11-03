@@ -21,12 +21,11 @@ int get_minimum(data_array_t *data)
 
 	for (int i = 0; i < data->length; i++)
 	{
-		if (data->values[i] < min || min == 0)
+		if (data->values[i] != 0 && (data->values[i] < min || min == 0))
 		{
 			min = data->values[i];
 		}
 	}
-
 	return min;
 }
 
