@@ -39,7 +39,6 @@ void render_lines(int offset, int thread_count, data_array_t *data, config_t *co
 			size_t index = i * width + r;
 			complex_t c = coordinate_to_complex(config->plane, r, i);
 			data->values[index] = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
-		//	DEBUG_PRINT("values[%ld] == %d\n", index, data->values[index]);
 		}
 	}
 }
@@ -59,7 +58,6 @@ void get_multithreaded_data(data_array_t *data, int count, config_t *config)
 		else if (pid == 0)
 		{
 			render_lines(i, count, data, config);
-			DEBUG_PRINT("Worker thread #%d (PID %d) finished iterating.\n", i, pid);
 			exit(0);
 		}
 		else
@@ -75,7 +73,16 @@ void get_multithreaded_data(data_array_t *data, int count, config_t *config)
 	{
 		int status;
 		pid = wait(&status);
-		DEBUG_PRINT("Worker thread with PID %ld exited with status 0x%x.\n", (long) pid, status);
+
+		if (status == 0)
+		{
+			DEBUG_PRINT("Worker thread with PID %ld finished iterating.\n", (long) pid);
+		}
+		else
+		{
+			fprintf(stderr, "Worker thread with PID %ld finished with non-zero exit code %d.\n", (long) pid, status);
+		}
+
 		count--;
 	}
 }

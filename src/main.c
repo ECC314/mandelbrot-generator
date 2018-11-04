@@ -34,23 +34,22 @@ int main(int argc, char** argv)
 
 	DEBUG_PRINT("Generating iteration data...\n");
 
-	int num_threads = 4;
 
 	data_array_t *data = create_data_array(height * width);
-	if (num_threads == 1)
-	{
-		get_mandelbrot_limit_data(data, config);
-	}
-	else
-	{
-		get_multithreaded_data(data, num_threads, config);
-	}
-
 	if (data == NULL)
 	{
 		free_palette(palette);
 		free_config(config);
 		return 1;
+	}
+
+	if (config->num_threads == 1)
+	{
+		get_mandelbrot_limit_data(data, config);
+	}
+	else
+	{
+		get_multithreaded_data(data, config->num_threads, config);
 	}
 
 	DEBUG_PRINT("Generating image data...\n");
