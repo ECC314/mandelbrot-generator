@@ -33,7 +33,7 @@ void free_data(data_array_t *data)
 {
 	if (data != NULL)
 	{
-		free(data->values);
+		free_shared_data(data->values, data->length);
 		free(data);
 	}
 }

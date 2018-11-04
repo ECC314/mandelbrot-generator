@@ -25,7 +25,13 @@ data_array_t *get_mandelbrot_limit_data(config_t *config)
 
 	data_array_t *data = calloc(1, sizeof(data_array_t));
 	data->length = width * height;
-	data->values = calloc(data->length, sizeof(int));
+	data->values = create_shared_data(data->length * sizeof(int));
+
+	if (data->values == NULL)
+	{
+		free(data);
+		return NULL;
+	}
 
 	for (int i = 0; i < height; i++)
 	{

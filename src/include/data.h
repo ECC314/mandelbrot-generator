@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include "parallel.h"
+
 typedef struct
 {
 	int *values;

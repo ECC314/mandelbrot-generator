@@ -35,6 +35,13 @@ int main(int argc, char** argv)
 	DEBUG_PRINT("Generating iteration data...\n");
 	data_array_t *data = get_mandelbrot_limit_data(config);
 
+	if (data == NULL)
+	{
+		free_palette(palette);
+		free_config(config);
+		return 1;
+	}
+
 	DEBUG_PRINT("Generating image data...\n");
 	image_t *image = data_to_image(data, width, height, palette);
 	free_palette(palette);
