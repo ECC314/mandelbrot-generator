@@ -1,4 +1,6 @@
+#include <sys/wait.h>
 #include "include/parallel.h"
+#include "include/mandelbrot.h"
 
 int *create_shared_data(size_t size)
 {
@@ -23,3 +25,58 @@ void free_shared_data(int *addr, size_t size)
 		perror("Failed to free shared memory");
 	}
 }
+
+// Calculates the iteration data for every [thread_count]-th line of the image.
+void render_lines(int offset, int thread_count, data_array_t *data, config_t *config)
+{
+	size_t height = config->plane->pixel_height;
+	size_t width = config->plane->pixel_width;
+
+	for (int i = offset; i < height; i += thread_count)
+	{
+		for (int r = 0; r < width; r++)
+		{
+			size_t index = i * width + r;
+			complex_t c = coordinate_to_complex(config->plane, r, i);
+			data->values[index] = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
+		//	DEBUG_PRINT("values[%ld] == %d\n", index, data->values[index]);
+		}
+	}
+}
+
+void get_multithreaded_data(data_array_t *data, int count, config_t *config)
+{
+	pid_t pid;
+
+	for (int i = 0; i < count; i++)
+	{
+		pid = fork();
+		if (pid < 0)
+		{
+			fprintf(stderr, "Failed to fork() worker thread #%d.\n", i);
+			abort();
+		}
+		else if (pid == 0)
+		{
+			render_lines(i, count, data, config);
+			DEBUG_PRINT("Worker thread #%d (PID %d) finished iterating.\n", i, pid);
+			exit(0);
+		}
+		else
+		{
+			DEBUG_PRINT("Started worker thread #%d (PID %d).\n", i, pid);
+		}
+
+	}
+
+	printf("Created %d worker threads.\n", count);
+
+	while (count > 0)
+	{
+		int status;
+		pid = wait(&status);
+		DEBUG_PRINT("Worker thread with PID %ld exited with status 0x%x.\n", (long) pid, status);
+		count--;
+	}
+}
+

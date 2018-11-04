@@ -1,4 +1,5 @@
 #include "include/data.h"
+#include "include/parallel.h"
 
 int get_maximum(data_array_t *data)
 {
@@ -29,7 +30,16 @@ int get_minimum(data_array_t *data)
 	return min;
 }
 
-void free_data(data_array_t *data)
+data_array_t *create_data_array(size_t length)
+{
+	data_array_t *data = calloc(1, sizeof(data_array_t));
+	data->length = length;
+	data->values = create_shared_data(length * sizeof(int));
+
+	return data;
+}
+
+void free_data_array(data_array_t *data)
 {
 	if (data != NULL)
 	{

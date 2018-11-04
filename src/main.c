@@ -33,7 +33,18 @@ int main(int argc, char** argv)
 	}
 
 	DEBUG_PRINT("Generating iteration data...\n");
-	data_array_t *data = get_mandelbrot_limit_data(config);
+
+	int num_threads = 4;
+
+	data_array_t *data = create_data_array(height * width);
+	if (num_threads == 1)
+	{
+		get_mandelbrot_limit_data(data, config);
+	}
+	else
+	{
+		get_multithreaded_data(data, num_threads, config);
+	}
 
 	if (data == NULL)
 	{
@@ -45,7 +56,7 @@ int main(int argc, char** argv)
 	DEBUG_PRINT("Generating image data...\n");
 	image_t *image = data_to_image(data, width, height, palette);
 	free_palette(palette);
-	free_data(data);
+	free_data_array(data);
 
 	DEBUG_PRINT("Writing PNG to %s...\n", config->output_file);
 	if (write_image_to_file(image, config->output_file))

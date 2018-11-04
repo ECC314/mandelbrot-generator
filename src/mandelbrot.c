@@ -18,20 +18,10 @@ int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterat
 	return 0;
 }
 
-data_array_t *get_mandelbrot_limit_data(config_t *config)
+void get_mandelbrot_limit_data(data_array_t *data, config_t *config)
 {
 	const size_t height = config->plane->pixel_height;
 	const size_t width = config->plane->pixel_width;
-
-	data_array_t *data = calloc(1, sizeof(data_array_t));
-	data->length = width * height;
-	data->values = create_shared_data(data->length * sizeof(int));
-
-	if (data->values == NULL)
-	{
-		free(data);
-		return NULL;
-	}
 
 	for (int i = 0; i < height; i++)
 	{
@@ -44,5 +34,4 @@ data_array_t *get_mandelbrot_limit_data(config_t *config)
 			data->values[index] = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
 		}
 	}
-	return data;
 }

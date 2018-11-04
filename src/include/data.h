@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 
-#include "parallel.h"
-
 typedef struct
 {
 	int *values;
@@ -19,6 +17,8 @@ int get_maximum(data_array_t *data);
 // Returns 0 if no values greater than 0 were found.
 int get_minimum(data_array_t *data);
 
-void free_data(data_array_t *data);
+data_array_t *create_data_array(size_t length);
+
+void free_data_array(data_array_t *data);
 
 #endif //MANDELBROT_DATA_UTIL_H
