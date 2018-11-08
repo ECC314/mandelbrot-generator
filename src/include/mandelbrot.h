@@ -5,6 +5,7 @@
 #include "configuration.h"
 #include "debug.h"
 #include "image.h"
+#include "parallel.h"
 
 // Obtain Mandelbrot iteration z_(n+1) from z_n and c.
 complex_t next_mandelbrot_iteration(complex_t z, complex_t c);
@@ -14,7 +15,7 @@ complex_t next_mandelbrot_iteration(complex_t z, complex_t c);
 int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterations);
 
 // Generates a data array of the first indices where z_n(c) exceeds the limit.
-data_array_t *get_mandelbrot_limit_data(config_t *config);
+void get_mandelbrot_limit_data(data_array_t *data, config_t *config);
 
 
 #endif //MANDELBROT_MANDELBROT_H

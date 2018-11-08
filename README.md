@@ -15,30 +15,41 @@ $ make
 If you wish to see verbose debug output, you can use `cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt` instead.
 ## Usage
 ```
-Usage: mandelbrot-generator -<A|R> -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file]
+Usage: mandelbrot-generator -<A|R> -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file] [-t num_threads]
+
     -A
         Sets PALETTE_ABSOLUTE. Cannot be combined with -R.
+
     -d depth
         Number of iterations per pixel.
+
     -f output_file
         Path of the resulting PNG file.
+
     -i image_size
         Size of the resulting PNG.
         Format:  HEIGHTxWIDTH
         Example: 100x200
         -> 100 pixels high, 200 pixels wide.
+
     -l limit
         Limit that must be exceeded by abs(z_n(c)).
+
     -p plane_specs
         Specifications of the complex plane.
         Format:  min_r/max_r/min_i/max_i
         Example: -3.5/2.5/-3/3
         -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.
+
     -P palette_file
         Path of the color palette file.
         Defaults to linear grayscale if no palette is provided.
+
     -R
         Sets PALETTE_RELATIVE. Cannot be combined with -A.
+
+    -t num_threads
+        Specifies the number of worker threads. Defaults to one.
 ```
 
 ### `PALETTE_ABSOLUTE` and `PALETTE_RELATIVE`

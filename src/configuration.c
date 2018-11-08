@@ -3,7 +3,7 @@
 
 void print_usage(char **argv)
 {
-	fprintf(stderr, "Usage: %s -<A|R> -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file]\n", argv[0]);
+	fprintf(stderr, "Usage: %s -<A|R> -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file] [-t num_threads]\n", argv[0]);
 	fprintf(stderr, "\n\t-A\n");
 	fprintf(stderr, "\t\tSets PALETTE_ABSOLUTE. Cannot be combined with -R.\n");
 	fprintf(stderr, "\n\t-d depth\n");
@@ -27,12 +27,15 @@ void print_usage(char **argv)
 	fprintf(stderr, "\t\tDefaults to linear grayscale if no palette is provided.\n");
 	fprintf(stderr, "\n\t-R\n");
 	fprintf(stderr, "\t\tSets PALETTE_RELATIVE. Cannot be combined with -A.\n");
+	fprintf(stderr, "\n\t-t num_threads\n");
+	fprintf(stderr, "\t\tSpecifies the number of worker threads. Defaults to one.\n");
 	fprintf(stderr, "\n");
 }
 
 config_t *parse_args(int argc, char **argv)
 {
 	config_t *config = calloc(1, sizeof(config_t));
+	config->num_threads = 1;
 	config->palette_type = PALETTE_UNDEFINED;
 
 	int opt;
@@ -45,7 +48,7 @@ config_t *parse_args(int argc, char **argv)
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt(argc, argv, "Ad:f:i:l:p:P:R")) != -1)
+	while ((opt = getopt(argc, argv, "Ad:f:i:l:p:P:Rt:")) != -1)
 	{
 		switch (opt)
 		{
@@ -88,6 +91,16 @@ config_t *parse_args(int argc, char **argv)
 				}
 				config->palette_type = PALETTE_RELATIVE;
 				break;
+			case 't':
+				config->num_threads = atoi(optarg);
+
+				if (config->num_threads < 2)
+				{
+					print_usage(argv);
+					free_config(config);
+					return NULL;
+				}
+				break;
 			default:
 				print_usage(argv);
 				free_config(config);
@@ -120,6 +133,10 @@ config_t *parse_args(int argc, char **argv)
 
 	DEBUG_PRINT("Limit: %d\n", config->limit);
 	DEBUG_PRINT("Depth: %d\n", config->iteration_depth);
+	if (config->num_threads > 1)
+	{
+		DEBUG_PRINT("Using %d worker threads.\n", config->num_threads);
+	}
 	return config;
 }
 
