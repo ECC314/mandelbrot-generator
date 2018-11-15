@@ -3,9 +3,7 @@
 
 #include "complex.h"
 #include "configuration.h"
-#include "debug.h"
-#include "image.h"
-#include "parallel.h"
+#include "data.h"
 
 // Obtain Mandelbrot iteration z_(n+1) from z_n and c.
 complex_t next_mandelbrot_iteration(complex_t z, complex_t c);

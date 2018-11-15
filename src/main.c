@@ -1,4 +1,12 @@
-#include "include/main.h"
+#include <stdio.h>
+
+#include "include/complex.h"
+#include "include/configuration.h"
+#include "include/debug.h"
+#include "include/image.h"
+#include "include/mandelbrot.h"
+#include "include/palette.h"
+#include "include/parallel.h"
 
 int main(int argc, char** argv)
 {

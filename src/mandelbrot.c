@@ -1,3 +1,4 @@
+#include "include/debug.h"
 #include "include/mandelbrot.h"
 
 complex_t next_mandelbrot_iteration(complex_t z, complex_t c)
@@ -20,14 +21,14 @@ int mandelbrot_iteration_exceeds_limit(complex_t c, double limit, int max_iterat
 
 void get_mandelbrot_limit_data(data_array_t *data, config_t *config)
 {
-	const size_t height = config->plane->pixel_height;
-	const size_t width = config->plane->pixel_width;
+	const unsigned int height = (unsigned int) config->plane->pixel_height;
+	const unsigned int width  = (unsigned int) config->plane->pixel_width;
 
-	for (int i = 0; i < height; i++)
+	for (unsigned int i = 0; i < height; i++)
 	{
 		if (i % 100 == 0)
 			DEBUG_PRINT("Calculating line %d...\n", i);
-		for (int r = 0; r < width; r++)
+		for (unsigned int r = 0; r < width; r++)
 		{
 			size_t index = i * width + r;
 			complex_t c = coordinate_to_complex(config->plane, r, i);

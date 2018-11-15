@@ -1,5 +1,10 @@
+#include <getopt.h>
+#include <stdbool.h>
+#include <string.h>
+
 #include "include/configuration.h"
-#include "include/main.h"
+#include "include/debug.h"
+#include "include/palette.h"
 
 void print_usage(char **argv)
 {

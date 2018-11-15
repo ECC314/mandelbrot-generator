@@ -1,3 +1,6 @@
+#include <png.h>
+#include <stdio.h>
+
 #include "include/image.h"
 
 #define PIXEL_SIZE 3 // RGB -> 3B/px
@@ -71,7 +74,7 @@ int write_image_to_file(image_t *image, char *file_name)
 	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
 
-	for (int i = 0; i < image->height; i++)
+	for (size_t i = 0; i < image->height; i++)
 	{
 		png_free(png_ptr, rows[i]);
 	}

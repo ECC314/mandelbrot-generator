@@ -1,14 +1,8 @@
 #ifndef MANDELBROT_IMAGE_H
 #define MANDELBROT_IMAGE_H
 
-#include <assert.h>
-#include <math.h>
-#include <png.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
-
-#include "data.h"
 
 typedef struct
 {

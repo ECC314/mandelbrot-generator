@@ -1,3 +1,7 @@
+#include <assert.h>
+#include <math.h>
+
+#include "include/debug.h"
 #include "include/palette.h"
 
 void free_palette(palette_t *palette)
@@ -99,7 +103,7 @@ image_t *data_to_image(data_array_t *data, size_t width, size_t height, palette_
 
 	int max = get_maximum(data);
 	int min = get_minimum(data);
-	for (int i = 0; i < data->length; i++)
+	for (unsigned int i = 0; i < data->length; i++)
 	{
 		if (palette == NULL)
 		{

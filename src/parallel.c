@@ -1,6 +1,11 @@
+#include <stdio.h>
 #include <sys/wait.h>
-#include "include/parallel.h"
+#include <sys/mman.h>
+#include <unistd.h>
+
+#include "include/debug.h"
 #include "include/mandelbrot.h"
+#include "include/parallel.h"
 
 int *create_shared_data(size_t size)
 {
@@ -27,14 +32,14 @@ void free_shared_data(int *addr, size_t size)
 }
 
 // Calculates the iteration data for every [thread_count]-th line of the image.
-void render_lines(int offset, int thread_count, data_array_t *data, config_t *config)
+void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *data, config_t *config)
 {
 	size_t height = config->plane->pixel_height;
 	size_t width = config->plane->pixel_width;
 
-	for (int i = offset; i < height; i += thread_count)
+	for (unsigned int i = offset; i < height; i += thread_count)
 	{
-		for (int r = 0; r < width; r++)
+		for (unsigned int r = 0; r < width; r++)
 		{
 			size_t index = i * width + r;
 			complex_t c = coordinate_to_complex(config->plane, r, i);
@@ -43,11 +48,11 @@ void render_lines(int offset, int thread_count, data_array_t *data, config_t *co
 	}
 }
 
-void get_multithreaded_data(data_array_t *data, int count, config_t *config)
+void get_multithreaded_data(data_array_t *data, unsigned int thread_count, config_t *config)
 {
 	pid_t pid;
 
-	for (int i = 0; i < count; i++)
+	for (unsigned int i = 0; i < thread_count; i++)
 	{
 		pid = fork();
 		if (pid < 0)
@@ -57,7 +62,7 @@ void get_multithreaded_data(data_array_t *data, int count, config_t *config)
 		}
 		else if (pid == 0)
 		{
-			render_lines(i, count, data, config);
+			render_lines(i, thread_count, data, config);
 			exit(0);
 		}
 		else
@@ -67,9 +72,9 @@ void get_multithreaded_data(data_array_t *data, int count, config_t *config)
 
 	}
 
-	printf("Created %d worker threads.\n", count);
+	printf("Created %d worker threads.\n", thread_count);
 
-	while (count > 0)
+	while (thread_count > 0)
 	{
 		int status;
 		pid = wait(&status);
@@ -83,7 +88,7 @@ void get_multithreaded_data(data_array_t *data, int count, config_t *config)
 			fprintf(stderr, "Worker thread with PID %ld finished with non-zero exit code %d.\n", (long) pid, status);
 		}
 
-		count--;
+		thread_count--;
 	}
 }
 

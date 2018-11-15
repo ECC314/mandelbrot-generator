@@ -5,7 +5,7 @@ int get_maximum(data_array_t *data)
 {
 	int max = 0;
 
-	for (int i = 0; i < data->length; i++)
+	for (size_t i = 0; i < data->length; i++)
 	{
 		if (data->values[i] > max)
 		{
@@ -20,7 +20,7 @@ int get_minimum(data_array_t *data)
 {
 	int min = 0;
 
-	for (int i = 0; i < data->length; i++)
+	for (size_t i = 0; i < data->length; i++)
 	{
 		if (data->values[i] != 0 && (data->values[i] < min || min == 0))
 		{

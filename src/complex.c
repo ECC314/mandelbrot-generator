@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "include/complex.h"
 
 complex_t complex_add(complex_t z1, complex_t z2)

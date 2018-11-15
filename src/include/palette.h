@@ -1,13 +1,8 @@
 #ifndef MANDELBROT_PALETTE_H
 #define MANDELBROT_PALETTE_H
 
-#include <assert.h>
-
-#include "complex.h"
-#include "configuration.h"
 #include "data.h"
 #include "image.h"
-#include "palette.h"
 
 #define PALETTE_UNDEFINED (-1)
 #define PALETTE_ABSOLUTE 0
