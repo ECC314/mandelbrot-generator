@@ -1,45 +1,63 @@
 #include <getopt.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include "include/configuration.h"
 #include "include/debug.h"
-#include "include/palette.h"
+
+static struct option long_options[] =
+{
+		{"absolute",   no_argument, NULL, 'A'},
+		{"relative",   no_argument, NULL, 'R'},
+		{"ssaa",       optional_argument, NULL, 'a'},
+		{"depth",      required_argument, NULL, 'd'},
+		{"file",       required_argument, NULL, 'f'},
+		{"limit",      required_argument, NULL, 'l'},
+		{"plane",      required_argument, NULL, 'p'},
+		{"palette",    required_argument, NULL, 'P'},
+		{"image-size", required_argument, NULL, 'i'},
+		{"threads",    required_argument, NULL, 't'},
+		{NULL, 0, NULL, 0}
+};
 
 void print_usage(char **argv)
 {
-	fprintf(stderr, "Usage: %s -<A|R> -d depth -f output_file -i image_size -l limit -p plane_specs [-P palette_file] [-t num_threads]\n", argv[0]);
-	fprintf(stderr, "\n\t-A\n");
-	fprintf(stderr, "\t\tSets PALETTE_ABSOLUTE. Cannot be combined with -R.\n");
-	fprintf(stderr, "\n\t-d depth\n");
-	fprintf(stderr, "\t\tNumber of iterations per pixel.\n");
-	fprintf(stderr, "\n\t-f output_file\n");
-	fprintf(stderr, "\t\tPath of the resulting PNG file.\n");
-	fprintf(stderr, "\n\t-i image_size\n");
-	fprintf(stderr, "\t\tSize of the resulting PNG.\n");
-	fprintf(stderr, "\t\tFormat:  HEIGHTxWIDTH\n");
-	fprintf(stderr, "\t\tExample: 100x200\n");
-	fprintf(stderr, "\t\t-> 100 pixels high, 200 pixels wide.\n");
-	fprintf(stderr, "\n\t-l limit\n");
-	fprintf(stderr, "\t\tLimit that must be exceeded by abs(z_n(c)).\n");
-	fprintf(stderr, "\n\t-p plane_specs\n");
-	fprintf(stderr, "\t\tSpecifications of the complex plane.\n");
-	fprintf(stderr, "\t\tFormat:  min_r/max_r/min_i/max_i\n");
-	fprintf(stderr, "\t\tExample: -3.5/2.5/-3/3\n");
-	fprintf(stderr, "\t\t-> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n");
-	fprintf(stderr, "\n\t-P palette_file\n");
-	fprintf(stderr, "\t\tPath of the color palette file.\n");
-	fprintf(stderr, "\t\tDefaults to linear grayscale if no palette is provided.\n");
-	fprintf(stderr, "\n\t-R\n");
-	fprintf(stderr, "\t\tSets PALETTE_RELATIVE. Cannot be combined with -A.\n");
-	fprintf(stderr, "\n\t-t num_threads\n");
-	fprintf(stderr, "\t\tSpecifies the number of worker threads. Defaults to one.\n");
-	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage: %s arguments...\n", argv[0]);
+
+	fprintf(stderr, "\nRequired arguments:\n\n");
+	fprintf(stderr, "    --absolute (-A)\n");
+	fprintf(stderr, "        Sets palette mode to PALETTE_ABSOLUTE.\n");
+	fprintf(stderr, "        Cannot be combined with -R.\n");
+	fprintf(stderr, "    --depth max_depth (-d)\n");
+	fprintf(stderr, "        Maximum Mandelbrot iterations per pixel.\n");
+	fprintf(stderr, "    --file output_file (-f)\n");
+	fprintf(stderr, "        Path of the resulting PNG file.\n");
+	fprintf(stderr, "    --image image_size (-i)\n");
+	fprintf(stderr, "        Size of the resulting PNG.\n");
+	fprintf(stderr, "        Format:  HEIGHTxWIDTH\n");
+	fprintf(stderr, "        Example: '100x200' -> 100 pixels high, 200 pixels wide.\n");
+	fprintf(stderr, "    --plane plane_specs (-p)\n");
+	fprintf(stderr, "        Specifications of the complex plane.\n");
+	fprintf(stderr, "        Format:  min_r/max_r/min_i/max_i\n");
+	fprintf(stderr, "        Example: '-3.5/2.5/-3/3' -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n");
+	fprintf(stderr, "    --relative (-R)\n");
+	fprintf(stderr, "        Sets palette mode to PALETTE_RELATIVE.\n");
+	fprintf(stderr, "        Cannot be combined with -A.\n");
+
+	fprintf(stderr, "\nOptional arguments:\n\n");
+	fprintf(stderr, "    --limit abs_value (-l)\n");
+	fprintf(stderr, "        The iteration for each c ends when abs(z_n(c)) > abs_value.\n");
+	fprintf(stderr, "        Defaults to abs_value = 10.\n");
+	fprintf(stderr, "    --threads num_threads (-t)\n");
+	fprintf(stderr, "        Specifies the number of worker threads. Defaults to one.\n");
+	fprintf(stderr, "    --palette palette_file (-P)\n");
+	fprintf(stderr, "        Path of the color palette file.\n");
+	fprintf(stderr, "        Defaults to linear grayscale if no palette is provided.\n");
 }
 
 config_t *parse_args(int argc, char **argv)
 {
 	config_t *config = calloc(1, sizeof(config_t));
+	config->limit = 10;
 	config->num_threads = 1;
 	config->palette_type = PALETTE_UNDEFINED;
 
@@ -53,7 +71,7 @@ config_t *parse_args(int argc, char **argv)
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt(argc, argv, "Ad:f:i:l:p:P:Rt:")) != -1)
+	while ((opt = getopt_long(argc, argv, "aARd:f:i:l:p:P:t:", long_options, NULL)) != -1)
 	{
 		switch (opt)
 		{
@@ -124,8 +142,8 @@ config_t *parse_args(int argc, char **argv)
 	if (plane_specs && height > 0 && width > 0)
 	{
 		DEBUG_PRINT("Complex plane specifications:\n");
-		DEBUG_PRINT("\tReal      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
-		DEBUG_PRINT("\tImaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
+		DEBUG_PRINT("    Real      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
+		DEBUG_PRINT("    Imaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
 
 		config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 	}
