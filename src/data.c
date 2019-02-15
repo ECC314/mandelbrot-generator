@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "include/data.h"
 #include "include/parallel.h"
 
@@ -35,7 +36,10 @@ data_array_t *create_data_array(size_t length)
 	data_array_t *data = calloc(1, sizeof(data_array_t));
 	data->length = length;
 	data->values = create_shared_data(length * sizeof(int));
-
+	if (data->values == NULL) {
+		free(data);
+		return NULL;
+	}
 	return data;
 }
 

@@ -34,15 +34,15 @@ void free_shared_data(int *addr, size_t size)
 // Calculates the iteration data for every [thread_count]-th line of the image.
 void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *data, config_t *config)
 {
-	size_t height = config->plane->pixel_height;
-	size_t width = config->plane->pixel_width;
+	size_t height = config->plane->pixel_height * config->ssaa_factor;
+	size_t width = config->plane->pixel_width * config->ssaa_factor;
 
 	for (unsigned int i = offset; i < height; i += thread_count)
 	{
 		for (unsigned int r = 0; r < width; r++)
 		{
 			size_t index = i * width + r;
-			complex_t c = coordinate_to_complex(config->plane, r, i);
+			complex_t c = coordinate_to_complex(config->plane, r, i, config->ssaa_factor);
 			data->values[index] = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
 		}
 	}

@@ -20,8 +20,8 @@ complex_t complex_square(complex_t z)
 	return (complex_t) {z.real * z.real - z.imaginary * z.imaginary, 2 * z.real * z.imaginary};
 }
 
-complex_plane_t *create_complex_plane(int height, int width, double real_min, double real_max, double imaginary_min,
-									  double imaginary_max)
+complex_plane_t *create_complex_plane(int height, int width, double real_min, double real_max,
+                                      double imaginary_min, double imaginary_max)
 {
 	complex_plane_t *plane = malloc(sizeof(complex_plane_t));
 
@@ -35,11 +35,11 @@ complex_plane_t *create_complex_plane(int height, int width, double real_min, do
 	return plane;
 }
 
-complex_t coordinate_to_complex(complex_plane_t *plane, int x, int y)
+complex_t coordinate_to_complex(complex_plane_t *plane, int x, int y, unsigned int ssaa_scale)
 {
 	complex_t result;
-	result.real = plane->real_min + (x + 0.5) * (plane->real_max - plane->real_min) / plane->pixel_width;
-	result.imaginary = plane->imaginary_max + (y + 0.5) * (plane->imaginary_min - plane->imaginary_max) / plane->pixel_height;
+	result.real = plane->real_min + (x + 0.5) * (plane->real_max - plane->real_min) / (plane->pixel_width * ssaa_scale);
+	result.imaginary = plane->imaginary_max + (y + 0.5) * (plane->imaginary_min - plane->imaginary_max) / (plane->pixel_height * ssaa_scale);
 	
 	return result;
 }

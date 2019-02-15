@@ -1,14 +1,16 @@
 #include <getopt.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "include/configuration.h"
 #include "include/debug.h"
+#include "include/palette.h"
 
 static struct option long_options[] =
 {
 		{"absolute",   no_argument, NULL, 'A'},
 		{"relative",   no_argument, NULL, 'R'},
-		{"ssaa",       optional_argument, NULL, 'a'},
+		{"ssaa",       required_argument, NULL, 'a'},
 		{"depth",      required_argument, NULL, 'd'},
 		{"file",       required_argument, NULL, 'f'},
 		{"limit",      required_argument, NULL, 'l'},
@@ -52,11 +54,15 @@ void print_usage(char **argv)
 	fprintf(stderr, "    --palette palette_file (-P)\n");
 	fprintf(stderr, "        Path of the color palette file.\n");
 	fprintf(stderr, "        Defaults to linear grayscale if no palette is provided.\n");
+	fprintf(stderr, "    --ssaa factor (-a)\n");
+	fprintf(stderr, "        Enables supersample antialiasing, which will render factor*factor data\n");
+	fprintf(stderr, "        points per pixel.\n");
 }
 
 config_t *parse_args(int argc, char **argv)
 {
 	config_t *config = calloc(1, sizeof(config_t));
+	config->ssaa_factor = 1;
 	config->limit = 10;
 	config->num_threads = 1;
 	config->palette_type = PALETTE_UNDEFINED;
@@ -71,10 +77,14 @@ config_t *parse_args(int argc, char **argv)
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt_long(argc, argv, "aARd:f:i:l:p:P:t:", long_options, NULL)) != -1)
+	while ((opt = getopt_long(argc, argv, "a:ARd:f:i:l:p:P:t:", long_options, NULL)) != -1)
 	{
 		switch (opt)
 		{
+			case 'a':
+				config->ssaa_factor = (unsigned int) atoi(optarg);
+				DEBUG_PRINT("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
+				break;
 			case 'A':
 				if (config->palette_type == PALETTE_RELATIVE)
 				{
@@ -115,7 +125,7 @@ config_t *parse_args(int argc, char **argv)
 				config->palette_type = PALETTE_RELATIVE;
 				break;
 			case 't':
-				config->num_threads = atoi(optarg);
+				config->num_threads = (unsigned int) atoi(optarg);
 
 				if (config->num_threads < 2)
 				{

@@ -46,9 +46,9 @@ Optional arguments:
     --palette palette_file (-P)
         Path of the color palette file.
         Defaults to linear grayscale if no palette is provided.
-    --ssaa [factor] (-a)
+    --ssaa factor (-a)
         Enables supersample antialiasing, which will render factor*factor data
-        points per pixel. `factor` defaults to 2.
+        points per pixel.
 ```
 
 ### `PALETTE_ABSOLUTE` and `PALETTE_RELATIVE`

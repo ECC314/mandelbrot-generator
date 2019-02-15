@@ -7,6 +7,7 @@
 #include "include/mandelbrot.h"
 #include "include/palette.h"
 #include "include/parallel.h"
+#include "include/antialiasing.h"
 
 int main(int argc, char** argv)
 {
@@ -41,9 +42,7 @@ int main(int argc, char** argv)
 	}
 
 	DEBUG_PRINT("Generating iteration data...\n");
-
-
-	data_array_t *data = create_data_array(height * width);
+	data_array_t *data = create_data_array(height * config->ssaa_factor * width * config->ssaa_factor);
 	if (data == NULL)
 	{
 		free_palette(palette);
@@ -58,6 +57,20 @@ int main(int argc, char** argv)
 	else
 	{
 		get_multithreaded_data(data, config->num_threads, config);
+	}
+
+	if (config->ssaa_factor > 1)
+	{
+		DEBUG_PRINT("Beginning supersampling antialiasing...\n");
+		data_array_t *processed_data = get_ssaa_data(data, config->ssaa_factor, config);
+		free(data);
+		if (processed_data == NULL)
+		{
+			free_palette(palette);
+			free_config(config);
+			return 1;
+		}
+		data = processed_data;
 	}
 
 	DEBUG_PRINT("Generating image data...\n");

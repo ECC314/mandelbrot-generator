@@ -7,7 +7,8 @@ typedef struct
 {
 	char *output_file;
 	char* palette_file;
-	int num_threads;
+	unsigned int ssaa_factor;
+	unsigned int num_threads;
 	int palette_type;
 	int iteration_depth;
 	int limit;
