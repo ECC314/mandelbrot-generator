@@ -13,7 +13,6 @@ static struct option long_options[] =
 		{"ssaa",       required_argument, NULL, 'a'},
 		{"depth",      required_argument, NULL, 'd'},
 		{"file",       required_argument, NULL, 'f'},
-		{"limit",      required_argument, NULL, 'l'},
 		{"plane",      required_argument, NULL, 'p'},
 		{"palette",    required_argument, NULL, 'P'},
 		{"image-size", required_argument, NULL, 'i'},
@@ -21,49 +20,49 @@ static struct option long_options[] =
 		{NULL, 0, NULL, 0}
 };
 
+
 void print_usage(char **argv)
 {
-	fprintf(stderr, "Usage: %s arguments...\n", argv[0]);
+	fprintf(stderr, "Usage: %s arguments...\n\n", argv[0]);
 
-	fprintf(stderr, "\nRequired arguments:\n\n");
-	fprintf(stderr, "    --absolute (-A)\n");
-	fprintf(stderr, "        Sets palette mode to PALETTE_ABSOLUTE.\n");
-	fprintf(stderr, "        Cannot be combined with -R.\n");
-	fprintf(stderr, "    --depth max_depth (-d)\n");
-	fprintf(stderr, "        Maximum Mandelbrot iterations per pixel.\n");
-	fprintf(stderr, "    --file output_file (-f)\n");
-	fprintf(stderr, "        Path of the resulting PNG file.\n");
-	fprintf(stderr, "    --image image_size (-i)\n");
-	fprintf(stderr, "        Size of the resulting PNG.\n");
-	fprintf(stderr, "        Format:  HEIGHTxWIDTH\n");
-	fprintf(stderr, "        Example: '100x200' -> 100 pixels high, 200 pixels wide.\n");
-	fprintf(stderr, "    --plane plane_specs (-p)\n");
-	fprintf(stderr, "        Specifications of the complex plane.\n");
-	fprintf(stderr, "        Format:  min_r/max_r/min_i/max_i\n");
-	fprintf(stderr, "        Example: '-3.5/2.5/-3/3' -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n");
-	fprintf(stderr, "    --relative (-R)\n");
-	fprintf(stderr, "        Sets palette mode to PALETTE_RELATIVE.\n");
-	fprintf(stderr, "        Cannot be combined with -A.\n");
-
-	fprintf(stderr, "\nOptional arguments:\n\n");
-	fprintf(stderr, "    --limit abs_value (-l)\n");
-	fprintf(stderr, "        The iteration for each c ends when abs(z_n(c)) > abs_value.\n");
-	fprintf(stderr, "        Defaults to abs_value = 10.\n");
-	fprintf(stderr, "    --threads num_threads (-t)\n");
-	fprintf(stderr, "        Specifies the number of worker threads. Defaults to one.\n");
-	fprintf(stderr, "    --palette palette_file (-P)\n");
-	fprintf(stderr, "        Path of the color palette file.\n");
-	fprintf(stderr, "        Defaults to linear grayscale if no palette is provided.\n");
-	fprintf(stderr, "    --ssaa factor (-a)\n");
-	fprintf(stderr, "        Enables supersample antialiasing, which will render factor*factor data\n");
-	fprintf(stderr, "        points per pixel.\n");
+	fprintf(stderr,
+			"Required arguments:\n"
+            "\n"
+			"    --absolute (-A)\n"
+			"        Sets palette mode to PALETTE_ABSOLUTE.\n"
+			"        Cannot be combined with -R.\n"
+			"    --depth max_depth (-d)\n"
+			"        Maximum Mandelbrot iterations per pixel.\n"
+			"    --file output_file (-f)\n"
+			"        Path of the resulting PNG file.\n"
+			"    --image image_size (-i)\n"
+			"        Size of the resulting PNG.\n"
+			"        Format:  HEIGHTxWIDTH\n"
+			"        Example: '100x200' -> 100 pixels high, 200 pixels wide.\n"
+			"    --plane plane_specs (-p)\n"
+			"        Specifications of the complex plane.\n"
+			"        Format:  min_r/max_r/min_i/max_i\n"
+			"        Example: '-3.5/2.5/-3/3' -> Real axis from -3.5 to 2.5, imaginary from -3 to 3.\n"
+			"    --relative (-R)\n"
+			"        Sets palette mode to PALETTE_RELATIVE.\n"
+			"        Cannot be combined with -A.\n"
+            "\n"
+			"Optional arguments:\n\n"
+			"    --threads num_threads (-t)\n"
+			"        Specifies the number of worker threads. Defaults to one.\n"
+			"    --palette palette_file (-P)\n"
+			"        Path of the color palette file.\n"
+			"        Defaults to linear grayscale if no palette is provided.\n"
+			"    --ssaa factor (-a)\n"
+			"        Enables supersample antialiasing (SSAA), which will render factor*factor data\n"
+			"        points per pixel.\n"
+	);
 }
 
 config_t *parse_args(int argc, char **argv)
 {
 	config_t *config = calloc(1, sizeof(config_t));
 	config->ssaa_factor = 1;
-	config->limit = 10;
 	config->num_threads = 1;
 	config->palette_type = PALETTE_UNDEFINED;
 
@@ -77,12 +76,13 @@ config_t *parse_args(int argc, char **argv)
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt_long(argc, argv, "a:ARd:f:i:l:p:P:t:", long_options, NULL)) != -1)
+	while ((opt = getopt_long(argc, argv, "a:ARd:f:i:p:P:t:", long_options, NULL)) != -1)
 	{
 		switch (opt)
 		{
 			case 'a':
 				config->ssaa_factor = (unsigned int) atoi(optarg);
+
 				DEBUG_PRINT("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
 				break;
 			case 'A':
@@ -95,20 +95,29 @@ config_t *parse_args(int argc, char **argv)
 				config->palette_type = PALETTE_ABSOLUTE;
 				break;
 			case 'd':
-				config->iteration_depth = atoi(optarg);
+				config->iteration_depth = (unsigned int) atoi(optarg);
 				break;
 			case 'f':
 				config->output_file = calloc(strlen(optarg) + 1, sizeof(char));
 				strncpy(config->output_file, optarg, strlen(optarg));
 				break;
 			case 'i':
-				sscanf(optarg, "%dx%d", &height, &width);
-				break;
-			case 'l':
-				config->limit = atoi(optarg);
+				if (sscanf(optarg, "%ux%u", &height, &width) != 2)
+				{
+					print_usage(argv);
+					free_config(config);
+					printf("Invalid parameter for -p: %s\n", optarg);
+					return NULL;
+				}
 				break;
 			case 'p':
-				sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i);
+				if (sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i) != 4)
+				{
+					print_usage(argv);
+					free_config(config);
+					printf("Invalid parameter for -p: %s\n", optarg);
+					return NULL;
+				}
 				plane_specs = true;
 				break;
 			case 'P':
@@ -141,8 +150,7 @@ config_t *parse_args(int argc, char **argv)
 		}
 	}
 
-	if (config->output_file == NULL || config->limit <= 0 ||
-		config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED)
+	if (config->output_file == NULL || config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED)
 	{
 		print_usage(argv);
 		free_config(config);
@@ -164,7 +172,6 @@ config_t *parse_args(int argc, char **argv)
 		return NULL;
 	}
 
-	DEBUG_PRINT("Limit: %d\n", config->limit);
 	DEBUG_PRINT("Depth: %d\n", config->iteration_depth);
 	if (config->num_threads > 1)
 	{

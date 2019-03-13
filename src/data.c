@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "include/data.h"
 #include "include/parallel.h"
 

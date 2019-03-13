@@ -5,6 +5,8 @@
 #include "configuration.h"
 #include "data.h"
 
+#define ITERATION_ABS_LIMIT 1000 // Iteration ends once abs(z) exceeds 10^3.
+
 // Obtain Mandelbrot iteration z_(n+1) from z_n and c.
 complex_t next_mandelbrot_iteration(complex_t z, complex_t c);
 

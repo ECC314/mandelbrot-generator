@@ -1,5 +1,4 @@
 #include <png.h>
-#include <stdio.h>
 
 #include "include/image.h"
 

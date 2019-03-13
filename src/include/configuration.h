@@ -11,7 +11,6 @@ typedef struct
 	unsigned int num_threads;
 	int palette_type;
 	int iteration_depth;
-	int limit;
 	complex_plane_t *plane;
 } config_t;
 

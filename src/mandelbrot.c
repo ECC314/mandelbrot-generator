@@ -1,6 +1,7 @@
 #include "include/debug.h"
 #include "include/mandelbrot.h"
 
+
 complex_t next_mandelbrot_iteration(complex_t z, complex_t c)
 {
 	// z_(n+1) := (z_n)^2 + c
@@ -32,7 +33,7 @@ void get_mandelbrot_limit_data(data_array_t *data, config_t *config)
 		{
 			size_t index = i * width + r;
 			complex_t c = coordinate_to_complex(config->plane, r, i, config->ssaa_factor);
-			data->values[index] = mandelbrot_iteration_exceeds_limit(c, config->limit, config->iteration_depth);
+			data->values[index] = mandelbrot_iteration_exceeds_limit(c, ITERATION_ABS_LIMIT, config->iteration_depth);
 		}
 	}
 }
