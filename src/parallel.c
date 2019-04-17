@@ -42,7 +42,7 @@ void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *
 		for (unsigned int r = 0; r < width; r++)
 		{
 			size_t index = i * width + r;
-			complex_t c = coordinate_to_complex(config->plane, r, i, config->ssaa_factor);
+			complex double c = coordinate_to_complex(config->plane, r, i, config->ssaa_factor);
 			data->values[index] = mandelbrot_iteration_exceeds_limit(c, ITERATION_ABS_LIMIT, config->iteration_depth);
 		}
 	}

@@ -124,7 +124,7 @@ int parse_args(int argc, char **argv, config_t *config)
 			case 't':
 				config->num_threads = (unsigned int) atoi(optarg);
 
-				if (config->num_threads < 2)
+				if (config->num_threads < 1)
 				{
 					return -1;
 				}

@@ -1,7 +1,7 @@
 #ifndef MANDELBROT_CONFIGURATION_H
 #define MANDELBROT_CONFIGURATION_H
 
-#include "complex.h"
+#include "complex-plane.h"
 
 typedef struct
 {

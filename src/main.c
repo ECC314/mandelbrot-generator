@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "include/complex.h"
+#include "include/complex-plane.h"
 #include "include/configuration.h"
 #include "include/debug.h"
 #include "include/image.h"
