@@ -21,10 +21,8 @@ static struct option long_options[] =
 };
 
 
-void print_usage(char **argv)
+void print_usage()
 {
-	fprintf(stderr, "Usage: %s arguments...\n\n", argv[0]);
-
 	fprintf(stderr,
 			"Required arguments:\n"
             "\n"
@@ -59,9 +57,8 @@ void print_usage(char **argv)
 	);
 }
 
-config_t *parse_args(int argc, char **argv)
+int parse_args(int argc, char **argv, config_t *config)
 {
-	config_t *config = calloc(1, sizeof(config_t));
 	config->ssaa_factor = 1;
 	config->num_threads = 1;
 	config->palette_type = PALETTE_UNDEFINED;
@@ -82,15 +79,12 @@ config_t *parse_args(int argc, char **argv)
 		{
 			case 'a':
 				config->ssaa_factor = (unsigned int) atoi(optarg);
-
 				DEBUG_PRINT("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
 				break;
 			case 'A':
 				if (config->palette_type == PALETTE_RELATIVE)
 				{
-					print_usage(argv);
-					free_config(config);
-					return NULL;
+					return -1;
 				}
 				config->palette_type = PALETTE_ABSOLUTE;
 				break;
@@ -104,19 +98,15 @@ config_t *parse_args(int argc, char **argv)
 			case 'i':
 				if (sscanf(optarg, "%ux%u", &height, &width) != 2)
 				{
-					print_usage(argv);
-					free_config(config);
 					printf("Invalid parameter for -p: %s\n", optarg);
-					return NULL;
+					return -1;
 				}
 				break;
 			case 'p':
 				if (sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i) != 4)
 				{
-					print_usage(argv);
-					free_config(config);
 					printf("Invalid parameter for -p: %s\n", optarg);
-					return NULL;
+					return -1;
 				}
 				plane_specs = true;
 				break;
@@ -127,9 +117,7 @@ config_t *parse_args(int argc, char **argv)
 			case 'R':
 				if (config->palette_type == PALETTE_ABSOLUTE)
 				{
-					print_usage(argv);
-					free_config(config);
-					return NULL;
+					return -1;
 				}
 				config->palette_type = PALETTE_RELATIVE;
 				break;
@@ -138,46 +126,34 @@ config_t *parse_args(int argc, char **argv)
 
 				if (config->num_threads < 2)
 				{
-					print_usage(argv);
-					free_config(config);
-					return NULL;
+					return -1;
 				}
 				break;
 			default:
-				print_usage(argv);
-				free_config(config);
-				return NULL;
+				return -1;
 		}
 	}
 
-	if (config->output_file == NULL || config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED)
+	// Check missing parameters.
+	if (config->output_file == NULL || config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED
+			|| !plane_specs || height <= 0 || width <= 0
+	)
 	{
-		print_usage(argv);
-		free_config(config);
-		return NULL;
+		return -1;
 	}
 
-	if (plane_specs && height > 0 && width > 0)
-	{
-		DEBUG_PRINT("Complex plane specifications:\n");
-		DEBUG_PRINT("    Real      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
-		DEBUG_PRINT("    Imaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
+	DEBUG_PRINT("Complex plane specifications:\n");
+	DEBUG_PRINT("    Real      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
+	DEBUG_PRINT("    Imaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
+	config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 
-		config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
-	}
-	else
-	{
-		print_usage(argv);
-		free_config(config);
-		return NULL;
-	}
 
 	DEBUG_PRINT("Depth: %d\n", config->iteration_depth);
 	if (config->num_threads > 1)
 	{
 		DEBUG_PRINT("Using %d worker threads.\n", config->num_threads);
 	}
-	return config;
+	return 0;
 }
 
 void free_config(config_t *config)

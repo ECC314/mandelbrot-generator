@@ -13,11 +13,12 @@ int main(int argc, char** argv)
 {
 	DEBUG_PRINT("Verbose mode is active.\n");
 
-	config_t *config = parse_args(argc, argv);
-
-	if (config == NULL)
+	config_t *config = calloc(1, sizeof(config_t));
+	if (parse_args(argc, argv, config) != 0)
 	{
-		fprintf(stderr, "At least one parameter is missing or invalid. Aborting.\n");
+		print_usage();
+		fprintf(stderr, "At least one parameter is invalid, or a required parameter is missing. Aborting.\n");
+		free_config(config);
 		return 1;
 	}
 
