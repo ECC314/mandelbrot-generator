@@ -2,6 +2,7 @@
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "include/debug.h"
 #include "include/mandelbrot.h"
@@ -31,13 +32,25 @@ void free_shared_data(int *addr, size_t size)
 	}
 }
 
-// Calculates the iteration data for every [thread_count]-th line of the image.
-void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *data, config_t *config)
+typedef struct {
+	unsigned int thread_id;
+	data_array_t *data;
+	config_t *config;
+} arguments_t;
+
+// Calculates the iteration data for every [thread_id]-th line of the image.
+void *render_lines(void *void_args)
 {
+	arguments_t *args = (arguments_t *) void_args;
+	config_t *config = args->config;
+	data_array_t *data = args->data;
+	unsigned int offset = args->thread_id;
+	unsigned int step_size = config->num_threads;
+
 	size_t height = config->plane->pixel_height * config->ssaa_factor;
 	size_t width = config->plane->pixel_width * config->ssaa_factor;
 
-	for (unsigned int i = offset; i < height; i += thread_count)
+	for (unsigned int i = offset; i < height; i += step_size)
 	{
 		for (unsigned int r = 0; r < width; r++)
 		{
@@ -46,49 +59,44 @@ void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *
 			data->values[index] = mandelbrot_iteration_exceeds_limit(c, ITERATION_ABS_LIMIT, config->iteration_depth);
 		}
 	}
+	return NULL;
 }
+
 
 void get_multithreaded_data(data_array_t *data, config_t *config)
 {
-	pid_t pid;
 	unsigned int thread_count = config->num_threads;
 
-	for (unsigned int i = 0; i < thread_count; i++)
+	pthread_t threads[thread_count];
+	arguments_t args[thread_count];
+	for (unsigned int id = 0; id < thread_count; id++)
 	{
-		pid = fork();
-		if (pid < 0)
+		args[id].thread_id = id;
+		args[id].config = config;
+		args[id].data = data;
+
+		if (pthread_create(&threads[id], NULL, render_lines, &args[id]))
 		{
-			fprintf(stderr, "Failed to fork() worker thread #%d.\n", i);
+			fprintf(stderr, "Failed to spawn worker thread #%d.\n", id);
 			abort();
 		}
-		else if (pid == 0)
-		{
-			render_lines(i, thread_count, data, config);
-			exit(0);
-		}
 		else
 		{
-			DEBUG_PRINT("Started worker thread #%d (PID %d).\n", i, pid);
+			DEBUG_PRINT("Spawned worker thread #%d.\n", id);
 		}
 	}
-
 	printf("Created %d worker thread%s.\n", thread_count, (thread_count != 1 ? "s" : ""));
 
-	while (thread_count > 0)
+	for (unsigned int id = 0; id < thread_count; id++)
 	{
-		int status;
-		pid = wait(&status);
-
-		if (status == 0)
+		if(pthread_join(threads[id], NULL))
 		{
-			DEBUG_PRINT("Worker thread with PID %ld finished iterating.\n", (long) pid);
+			perror("Error while joining thread");
 		}
 		else
 		{
-			fprintf(stderr, "Worker thread with PID %ld finished with non-zero exit code %d.\n", (long) pid, status);
+			DEBUG_PRINT("Worker thread #%d finished.\n", id);
 		}
-
-		thread_count--;
 	}
 }
 
