@@ -1,15 +1,12 @@
 #include <stdio.h>
 
-#include "include/complex-plane.h"
 #include "include/configuration.h"
 #include "include/debug.h"
-#include "include/image.h"
-#include "include/mandelbrot.h"
 #include "include/palette.h"
-#include "include/parallel.h"
+#include "include/processing.h"
 #include "include/antialiasing.h"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	DEBUG_PRINT("Verbose mode is active.\n");
 
@@ -51,7 +48,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	get_multithreaded_data(data, config);
+	calculate_iteration_data(data, config);
 
 
 	if (config->ssaa_factor > 1)

@@ -1,5 +1,5 @@
 #include "include/data.h"
-#include "include/parallel.h"
+#include "include/processing.h"
 
 int get_maximum(data_array_t *data)
 {
@@ -34,8 +34,9 @@ data_array_t *create_data_array(size_t length)
 {
 	data_array_t *data = calloc(1, sizeof(data_array_t));
 	data->length = length;
-	data->values = create_shared_data(length * sizeof(int));
-	if (data->values == NULL) {
+	data->values = malloc(length * sizeof(int));
+	if (data->values == NULL)
+	{
 		free(data);
 		return NULL;
 	}
@@ -46,7 +47,7 @@ void free_data_array(data_array_t *data)
 {
 	if (data != NULL)
 	{
-		free_shared_data(data->values, data->length);
+		free(data->values);
 		free(data);
 	}
 }

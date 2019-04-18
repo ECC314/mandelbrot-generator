@@ -21,6 +21,6 @@ complex_plane_t *create_complex_plane(int height, int width, double real_min, do
 
 // Converts a pixel coordinate to a complex number on the complex plane.
 // This method will return the coordinate at the center (horizontally and vertically) of the given pixel.
-complex double coordinate_to_complex(complex_plane_t* plane, int x, int y, unsigned int ssaa_scale);
+complex double coordinate_to_complex(complex_plane_t *plane, int x, int y, unsigned int ssaa_scale);
 
 #endif //MANDELBROT_COMPLEX_H

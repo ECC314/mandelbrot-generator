@@ -8,16 +8,16 @@
 
 static struct option long_options[] =
 {
-		{"absolute",   no_argument, NULL, 'A'},
-		{"relative",   no_argument, NULL, 'R'},
-		{"ssaa",       required_argument, NULL, 'a'},
-		{"depth",      required_argument, NULL, 'd'},
-		{"file",       required_argument, NULL, 'f'},
-		{"plane",      required_argument, NULL, 'p'},
-		{"palette",    required_argument, NULL, 'P'},
-		{"image-size", required_argument, NULL, 'i'},
-		{"threads",    required_argument, NULL, 't'},
-		{NULL, 0, NULL, 0}
+	{"absolute",   no_argument,       NULL, 'A'},
+	{"relative",   no_argument,       NULL, 'R'},
+	{"ssaa",       required_argument, NULL, 'a'},
+	{"depth",      required_argument, NULL, 'd'},
+	{"file",       required_argument, NULL, 'f'},
+	{"plane",      required_argument, NULL, 'p'},
+	{"palette",    required_argument, NULL, 'P'},
+	{"image-size", required_argument, NULL, 'i'},
+	{"threads",    required_argument, NULL, 't'},
+	{NULL,         0,                 NULL, 0}
 };
 
 
@@ -25,7 +25,7 @@ void print_usage()
 {
 	fprintf(stderr,
 			"Required arguments:\n"
-            "\n"
+			"\n"
 			"    --absolute (-A)\n"
 			"        Sets palette mode to PALETTE_ABSOLUTE.\n"
 			"        Cannot be combined with -R.\n"
@@ -44,7 +44,7 @@ void print_usage()
 			"    --relative (-R)\n"
 			"        Sets palette mode to PALETTE_RELATIVE.\n"
 			"        Cannot be combined with -A.\n"
-            "\n"
+			"\n"
 			"Optional arguments:\n\n"
 			"    --threads num_threads (-t)\n"
 			"        Specifies the number of worker threads. Defaults to one.\n"
@@ -136,8 +136,7 @@ int parse_args(int argc, char **argv, config_t *config)
 
 	// Check missing parameters.
 	if (config->output_file == NULL || config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED
-			|| !plane_specs || height <= 0 || width <= 0
-	)
+		|| !plane_specs || height <= 0 || width <= 0)
 	{
 		return -1;
 	}

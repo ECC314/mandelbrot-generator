@@ -6,33 +6,10 @@
 
 #include "include/debug.h"
 #include "include/mandelbrot.h"
-#include "include/parallel.h"
+#include "include/processing.h"
 
-int *create_shared_data(size_t size)
+typedef struct
 {
-	unsigned int access = (unsigned int)PROT_READ | (unsigned int) PROT_WRITE;
-	unsigned int type = (unsigned int) MAP_SHARED | (unsigned int) MAP_ANONYMOUS;
-
-	void *addr = mmap(NULL, size, access, type, 0, 0);
-
-	if (addr == MAP_FAILED)
-	{
-		perror("Failed to map shared memory");
-		return NULL;
-	}
-
-	return (int *) addr;
-}
-
-void free_shared_data(int *addr, size_t size)
-{
-	if (munmap(addr, size) == -1)
-	{
-		perror("Failed to free shared memory");
-	}
-}
-
-typedef struct {
 	unsigned int thread_id;
 	data_array_t *data;
 	config_t *config;
@@ -63,7 +40,7 @@ void *render_lines(void *void_args)
 }
 
 
-void get_multithreaded_data(data_array_t *data, config_t *config)
+void calculate_iteration_data(data_array_t *data, config_t *config)
 {
 	unsigned int thread_count = config->num_threads;
 
@@ -89,7 +66,7 @@ void get_multithreaded_data(data_array_t *data, config_t *config)
 
 	for (unsigned int id = 0; id < thread_count; id++)
 	{
-		if(pthread_join(threads[id], NULL))
+		if (pthread_join(threads[id], NULL))
 		{
 			perror("Error while joining thread");
 		}
