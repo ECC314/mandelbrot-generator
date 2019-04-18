@@ -9,8 +9,8 @@
 
 int *create_shared_data(size_t size)
 {
-	int access = PROT_READ | PROT_WRITE;
-	int type = MAP_SHARED | MAP_ANONYMOUS;
+	unsigned int access = (unsigned int)PROT_READ | (unsigned int) PROT_WRITE;
+	unsigned int type = (unsigned int) MAP_SHARED | (unsigned int) MAP_ANONYMOUS;
 
 	void *addr = mmap(NULL, size, access, type, 0, 0);
 
@@ -48,9 +48,10 @@ void render_lines(unsigned int offset, unsigned int thread_count, data_array_t *
 	}
 }
 
-void get_multithreaded_data(data_array_t *data, unsigned int thread_count, config_t *config)
+void get_multithreaded_data(data_array_t *data, config_t *config)
 {
 	pid_t pid;
+	unsigned int thread_count = config->num_threads;
 
 	for (unsigned int i = 0; i < thread_count; i++)
 	{
@@ -69,10 +70,9 @@ void get_multithreaded_data(data_array_t *data, unsigned int thread_count, confi
 		{
 			DEBUG_PRINT("Started worker thread #%d (PID %d).\n", i, pid);
 		}
-
 	}
 
-	printf("Created %d worker threads.\n", thread_count);
+	printf("Created %d worker thread%s.\n", thread_count, (thread_count != 1 ? "s" : ""));
 
 	while (thread_count > 0)
 	{

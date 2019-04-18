@@ -17,21 +17,3 @@ int mandelbrot_iteration_exceeds_limit(complex double c, double limit, int max_i
 	}
 	return 0;
 }
-
-void get_mandelbrot_limit_data(data_array_t *data, config_t *config)
-{
-	const unsigned int height = (unsigned int) config->plane->pixel_height * config->ssaa_factor;
-	const unsigned int width  = (unsigned int) config->plane->pixel_width * config->ssaa_factor;
-
-	for (unsigned int i = 0; i < height; i++)
-	{
-		if (i % 100 == 0)
-			DEBUG_PRINT("Calculating line %d...\n", i);
-		for (unsigned int r = 0; r < width; r++)
-		{
-			size_t index = i * width + r;
-			complex double c = coordinate_to_complex(config->plane, r, i, config->ssaa_factor);
-			data->values[index] = mandelbrot_iteration_exceeds_limit(c, ITERATION_ABS_LIMIT, config->iteration_depth);
-		}
-	}
-}

@@ -51,14 +51,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (config->num_threads == 1)
-	{
-		get_mandelbrot_limit_data(data, config);
-	}
-	else
-	{
-		get_multithreaded_data(data, config->num_threads, config);
-	}
+	get_multithreaded_data(data, config);
+
 
 	if (config->ssaa_factor > 1)
 	{
