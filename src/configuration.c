@@ -79,7 +79,7 @@ int parse_args(int argc, char **argv, config_t *config)
 		{
 			case 'a':
 				config->ssaa_factor = (unsigned int) atoi(optarg);
-				DEBUG_PRINT("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
+				LOG_INFO("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
 				break;
 			case 'A':
 				if (config->palette_type == PALETTE_RELATIVE)
@@ -98,14 +98,14 @@ int parse_args(int argc, char **argv, config_t *config)
 			case 'i':
 				if (sscanf(optarg, "%ux%u", &height, &width) != 2)
 				{
-					printf("Invalid parameter for -p: %s\n", optarg);
+					LOG_ERROR("Invalid parameter for -p: %s\n", optarg);
 					return -1;
 				}
 				break;
 			case 'p':
 				if (sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i) != 4)
 				{
-					printf("Invalid parameter for -p: %s\n", optarg);
+					LOG_ERROR("Invalid parameter for -p: %s\n", optarg);
 					return -1;
 				}
 				plane_specs = true;
@@ -141,16 +141,16 @@ int parse_args(int argc, char **argv, config_t *config)
 		return -1;
 	}
 
-	DEBUG_PRINT("Complex plane specifications:\n");
-	DEBUG_PRINT("    Real      axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_r, max_r, width);
-	DEBUG_PRINT("    Imaginary axis: Ranging from %lf to %lf, divided into %d pixels.\n", min_i, max_i, height);
+	LOG_INFO("Complex plane specifications:\n");
+	LOG_INFO("    Real      axis: Ranging from %+.10lf to %+.10lf, divided into %d pixels.\n", min_r, max_r, width);
+	LOG_INFO("    Imaginary axis: Ranging from %+.10lf to %+.10lf, divided into %d pixels.\n", min_i, max_i, height);
 	config->plane = create_complex_plane(height, width, min_r, max_r, min_i, max_i);
 
 
-	DEBUG_PRINT("Depth: %d\n", config->iteration_depth);
+	LOG_INFO("Depth: %d\n", config->iteration_depth);
 	if (config->num_threads > 1)
 	{
-		DEBUG_PRINT("Using %d worker threads.\n", config->num_threads);
+		LOG_INFO("Using %d worker threads.\n", config->num_threads);
 	}
 	return 0;
 }

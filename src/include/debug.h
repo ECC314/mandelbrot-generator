@@ -3,12 +3,14 @@
 
 #include <stdio.h>
 
-#ifdef MANDELBROT_DEBUG
-// Will printf() to stdout if debug mode is active and does nothing if it isn't.
-#define DEBUG_PRINT(format, ...) printf(format, ##__VA_ARGS__)
+#define INFO  2
+#define ERROR 1
 
-#else
-#define DEBUG_PRINT(format, ...)
+#ifndef LOG_LEVEL
+#define LOG_LEVEL INFO
 #endif
+
+#define LOG_INFO(format, ...)  if (LOG_LEVEL >= INFO)  fprintf(stdout, "[INFO] "  format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...) if (LOG_LEVEL >= ERROR) fprintf(stderr, "[ERROR] " format, ##__VA_ARGS__)
 
 #endif //MANDELBROT_DEBUG_H

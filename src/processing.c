@@ -54,15 +54,15 @@ void calculate_iteration_data(data_array_t *data, config_t *config)
 
 		if (pthread_create(&threads[id], NULL, render_lines, &args[id]))
 		{
-			fprintf(stderr, "Failed to spawn worker thread #%d.\n", id);
+			LOG_ERROR("Failed to spawn worker thread #%d.\n", id);
 			abort();
 		}
 		else
 		{
-			DEBUG_PRINT("Spawned worker thread #%d.\n", id);
+			LOG_INFO("Spawned worker thread #%d.\n", id);
 		}
 	}
-	printf("Created %d worker thread%s.\n", thread_count, (thread_count != 1 ? "s" : ""));
+	LOG_INFO("Created %d worker thread%s.\n", thread_count, (thread_count != 1 ? "s" : ""));
 
 	for (unsigned int id = 0; id < thread_count; id++)
 	{
@@ -72,7 +72,7 @@ void calculate_iteration_data(data_array_t *data, config_t *config)
 		}
 		else
 		{
-			DEBUG_PRINT("Worker thread #%d finished.\n", id);
+			LOG_INFO("Worker thread #%d finished.\n", id);
 		}
 	}
 }

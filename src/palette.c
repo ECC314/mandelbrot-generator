@@ -22,7 +22,7 @@ palette_t *read_color_palette(char *filename, int type)
 	file = fopen(filename, "r");
 	if (file == NULL)
 	{
-		fprintf(stderr, "Failed to open %s.\n", filename);
+		LOG_ERROR("Failed to open %s.\n", filename);
 		free_palette(palette);
 		return NULL;
 	}
@@ -36,7 +36,7 @@ palette_t *read_color_palette(char *filename, int type)
 	{
 		if (read_count != 3 || r < 0 || g < 0 || b < 0 || r > 255 || g > 255 || b > 255)
 		{
-			fprintf(stderr, "Invalid color in line %d.\n", line);
+			LOG_ERROR("Invalid color in line %d.\n", line);
 			fclose(file);
 			free_palette(palette);
 			return NULL;
@@ -49,7 +49,7 @@ palette_t *read_color_palette(char *filename, int type)
 	}
 
 	fclose(file);
-	DEBUG_PRINT("Loaded %d colors from %s.\n", palette->size, filename);
+	LOG_INFO("Loaded %d colors from %s.\n", palette->size, filename);
 
 	return palette;
 }

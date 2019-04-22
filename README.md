@@ -12,7 +12,7 @@ Compiling the source code:
 $ cmake CMakeLists.txt
 $ make
 ```
-If you wish to see verbose debug output, you can use `cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt` instead.
+
 ## Usage
 ```
 Usage: mandelbrot-generator arguments...

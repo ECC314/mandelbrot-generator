@@ -1,6 +1,7 @@
 #include <png.h>
 
 #include "include/image.h"
+#include "include/debug.h"
 
 #define PIXEL_SIZE 3 // RGB -> 3B/px
 #define BIT_DEPTH 8
@@ -14,14 +15,14 @@ int write_image_to_file(image_t *image, char *file_name)
 	fp = fopen(file_name, "wb");
 	if (fp == NULL)
 	{
-		fprintf(stderr, "Failed to open %s.\n", file_name);
+		LOG_ERROR("Failed to open %s.\n", file_name);
 		return 1;
 	}
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL)
 	{
-		fprintf(stderr, "Failed to create the PNG writer struct.\n");
+		LOG_ERROR("Failed to create the PNG writer struct.\n");
 		fclose(fp);
 		return 1;
 	}
@@ -29,7 +30,7 @@ int write_image_to_file(image_t *image, char *file_name)
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL)
 	{
-		fprintf(stderr, "Failed to create the PNG info struct.\n");
+		LOG_ERROR("Failed to create the PNG info struct.\n");
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		fclose(fp);
 		return 1;
