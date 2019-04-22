@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <limits.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -13,9 +14,9 @@ static struct option long_options[] =
 	{"ssaa",       required_argument, NULL, 'a'},
 	{"depth",      required_argument, NULL, 'd'},
 	{"file",       required_argument, NULL, 'f'},
+	{"image-size", required_argument, NULL, 'i'},
 	{"plane",      required_argument, NULL, 'p'},
 	{"palette",    required_argument, NULL, 'P'},
-	{"image-size", required_argument, NULL, 'i'},
 	{"threads",    required_argument, NULL, 't'},
 	{NULL,         0,                 NULL, 0}
 };
@@ -35,7 +36,7 @@ void print_usage()
 			"        Path of the resulting PNG file.\n"
 			"    --image image_size (-i)\n"
 			"        Size of the resulting PNG.\n"
-			"        Format:  HEIGHTxWIDTH\n"
+			"        Format:  WIDTHxHEIGHT or WIDTH/HEIGHT\n"
 			"        Example: '100x200' -> 100 pixels high, 200 pixels wide.\n"
 			"    --plane plane_specs (-p)\n"
 			"        Specifications of the complex plane.\n"
@@ -57,6 +58,42 @@ void print_usage()
 	);
 }
 
+// Converts a string to a double. Returns non-zero if a parsing error occurred.
+int parse_double(double *dest, char *string)
+{
+	if (string == NULL || *string == '\0')
+	{
+		return 1;
+	}
+
+	char *endptr;
+	double value = strtod(string, &endptr);
+	if (*endptr != '\0')
+	{
+		return 1;
+	}
+	*dest = value;
+	return 0;
+}
+
+// Converts a string to an unsigned integer. Returns non-zero if a parsing error occurred or if the value is out of range.
+int parse_uint(unsigned int *dest, char *string)
+{
+	if (string == NULL || *string == '\0')
+	{
+		return 1;
+	}
+
+	char *endptr;
+	unsigned long int value = strtoul(string, &endptr, 10);
+	if (*endptr != '\0' || value > (unsigned long int) INT_MAX)
+	{
+		return 1;
+	}
+	*dest = value;
+	return 0;
+}
+
 int parse_args(int argc, char **argv, config_t *config)
 {
 	config->ssaa_factor = 1;
@@ -65,20 +102,24 @@ int parse_args(int argc, char **argv, config_t *config)
 
 	int opt;
 
-	int width = 0;
-	int height = 0;
+	unsigned int width = 0;
+	unsigned int height = 0;
 	double min_r = 0;
 	double max_r = 0;
 	double min_i = 0;
 	double max_i = 0;
 	bool plane_specs = false;
 
-	while ((opt = getopt_long(argc, argv, "a:ARd:f:i:p:P:t:", long_options, NULL)) != -1)
+	while ((opt = getopt_long(argc, argv, "ARa:d:f:i:p:P:t:", long_options, NULL)) != -1)
 	{
 		switch (opt)
 		{
 			case 'a':
-				config->ssaa_factor = (unsigned int) atoi(optarg);
+				if (parse_uint(&config->ssaa_factor, optarg))
+				{
+					LOG_ERROR("Invalid value for -a: %s\n", optarg);
+					return -1;
+				}
 				LOG_INFO("Enabled SSAA %ux%u.\n", config->ssaa_factor, config->ssaa_factor);
 				break;
 			case 'A':
@@ -89,25 +130,50 @@ int parse_args(int argc, char **argv, config_t *config)
 				config->palette_type = PALETTE_ABSOLUTE;
 				break;
 			case 'd':
-				config->iteration_depth = (unsigned int) atoi(optarg);
+				if (parse_uint(&config->iteration_depth, optarg))
+				{
+					LOG_ERROR("Invalid value for -d: %s\n", optarg);
+					return -1;
+				}
 				break;
 			case 'f':
 				config->output_file = calloc(strlen(optarg) + 1, sizeof(char));
 				strncpy(config->output_file, optarg, strlen(optarg));
 				break;
 			case 'i':
-				if (sscanf(optarg, "%ux%u", &height, &width) != 2)
+				if (parse_uint(&width, strtok(optarg, "/x")))
 				{
-					LOG_ERROR("Invalid parameter for -p: %s\n", optarg);
+					LOG_ERROR("Invalid WIDTH value for -i.\n");
+					return -1;
+				}
+				if (parse_uint(&height, strtok(NULL, "/x")))
+				{
+					LOG_ERROR("Invalid HEIGHT value for -i.\n");
 					return -1;
 				}
 				break;
 			case 'p':
-				if (sscanf(optarg, "%lf/%lf/%lf/%lf", &min_r, &max_r, &min_i, &max_i) != 4)
+				if (parse_double(&min_r, strtok(optarg, "/")))
 				{
-					LOG_ERROR("Invalid parameter for -p: %s\n", optarg);
+					LOG_ERROR("Invalid MIN_R value for -i.\n");
 					return -1;
 				}
+				if (parse_double(&max_r, strtok(NULL, "/")))
+				{
+					LOG_ERROR("Invalid MAX_R value for -i.\n");
+					return -1;
+				}
+				if (parse_double(&min_i, strtok(NULL, "/")))
+				{
+					LOG_ERROR("Invalid MIN_I value for -i.\n");
+					return -1;
+				}
+				if (parse_double(&max_i, strtok(NULL, "/")))
+				{
+					LOG_ERROR("Invalid MAX_I value for -i.\n");
+					return -1;
+				}
+
 				plane_specs = true;
 				break;
 			case 'P':
@@ -122,7 +188,11 @@ int parse_args(int argc, char **argv, config_t *config)
 				config->palette_type = PALETTE_RELATIVE;
 				break;
 			case 't':
-				config->num_threads = (unsigned int) atoi(optarg);
+				if (parse_uint(&config->num_threads, optarg))
+				{
+					LOG_ERROR("Invalid value for -t: %s\n", optarg);
+					return -1;
+				}
 
 				if (config->num_threads < 1)
 				{
@@ -135,8 +205,8 @@ int parse_args(int argc, char **argv, config_t *config)
 	}
 
 	// Check missing parameters.
-	if (config->output_file == NULL || config->iteration_depth <= 0 || config->palette_type == PALETTE_UNDEFINED
-		|| !plane_specs || height <= 0 || width <= 0)
+	if (config->output_file == NULL || config->iteration_depth == 0 || config->palette_type == PALETTE_UNDEFINED
+		|| !plane_specs || height == 0 || width == 0)
 	{
 		return -1;
 	}

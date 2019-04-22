@@ -10,7 +10,7 @@ typedef struct
 	unsigned int ssaa_factor;
 	unsigned int num_threads;
 	int palette_type;
-	int iteration_depth;
+	unsigned int iteration_depth;
 	complex_plane_t *plane;
 } config_t;
 
